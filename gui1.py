@@ -154,6 +154,10 @@ def process_files():
         plt.savefig(audio_plot_path)
         plt.close()
 
+        # make file embeded text
+        with open(os.path.join(output_folder, "embeded_text.txt"), 'w') as file:
+            file.write(text)
+            
         # Display plot in Tkinter GUI
         audio_plot = Image.open(audio_plot_path)
         audio_plot_resize = audio_plot.resize((273, 84))

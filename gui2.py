@@ -18,6 +18,19 @@ UPLOAD_FOLDER = "data_extracted"
 PATH_DATA = []
 
 
+def process_audio_image_text(audio_data, image_array, text):
+    # Embed image into audio
+    combined_image_audio = embed_image_into_audio(audio_data, image_array)
+    # Embed text into the combined audio
+    combined_all = embed_text_into_audio(combined_image_audio, text)
+    # Calculate Bit Error Rate (BER)
+    ber = calculate_ber(audio_data, combined_all)
+    # Calculate Signal-to-Noise Ratio (SNR)
+    snr = calculate_snr(image_array, audio_data - combined_all)
+    
+    return ber, snr
+
+
 def on_entry_click(entry, event):
     if entry.get() == 'Input audio watermarked':
         entry.delete(0, "end")  
@@ -143,15 +156,16 @@ def process_files():
     watermark_label.config(image=watermark)
     watermark_label.image = watermark
     watermark_label.lift()
-    # Assuming ber and snr are calculated here
-    ber = calculate_ber(
-        audio_data,
-        extract_image_from_audio(audio_data, (100, 100)).flatten()
-    )
-    snr = calculate_snr(
-        audio_data,
-        extract_image_from_audio(audio_data, (100, 100)).flatten()
-    )
+
+    # Step 1: Extract image data from audio
+    extracted_image_data = extract_image_from_audio(audio_data, (100, 100))
+
+    # Step 2: Flatten the extracted image data if required
+    flattened_image_data = extracted_image_data.flatten()
+
+    # Step 3: Call calculate_ber and calculate_snr with the necessary parameters
+    ber = calculate_ber(audio_data, flattened_image_data)
+    snr = calculate_snr(audio_data, flattened_image_data)
     
     # Update BER and SNR entries
     entry_ber.delete(0, END)

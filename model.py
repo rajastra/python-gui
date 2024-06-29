@@ -72,21 +72,40 @@ def save_model(filename='steganography_model.pkl'):
 def load_model(filename='steganography_model.pkl'):
     with open(filename, 'rb') as f:
         return pickle.load(f)
+    
 def calculate_ber(original_audio, modified_audio):
+    original_audio = np.array(original_audio)
+    modified_audio = np.array(modified_audio)
+    
     # Ensure the arrays have the same length
     min_len = min(len(original_audio), len(modified_audio))
     original_audio = original_audio[:min_len]
     modified_audio = modified_audio[:min_len]
 
-    # Menghitung Bit Error Rate (BER)
+    # Handle case where arrays might be empty
+    if len(original_audio) == 0:
+        return float('inf')  # Return infinity if no data to compare
+    
+    # Calculate Bit Error Rate (BER)
     ber = np.sum(original_audio != modified_audio) / len(original_audio)
     return ber
 
 def calculate_snr(original_signal, extracted_signal):
+    original_signal = np.array(original_signal)
+    extracted_signal = np.array(extracted_signal)
+    
+    # Flatten the signals if they're not already 1D
+    original_signal = original_signal.flatten()
+    extracted_signal = extracted_signal.flatten()
+    
     # Ensure the signals have the same length
     min_len = min(len(original_signal), len(extracted_signal))
     original_signal = original_signal[:min_len]
     extracted_signal = extracted_signal[:min_len]
+
+    # Handle case where signals might be empty
+    if min_len == 0:
+        return float('inf')  # Return infinity if no data to compare
     
     # Calculate the noise (difference between the original and extracted signals)
     noise = original_signal - extracted_signal
@@ -95,13 +114,15 @@ def calculate_snr(original_signal, extracted_signal):
     signal_power = np.sum(original_signal ** 2)
     noise_power = np.sum(noise ** 2)
 
-    # Avoid division by zero
-    if noise_power == 0:
-        return float('inf')  # or return an appropriate value indicating no noise
+    # Check for valid signal and noise power to avoid invalid log10 argument
+    if noise_power <= 0:
+        return float('inf')  # Infinite SNR if there is no noise
+    if signal_power <= 0:
+        return float('-inf')  # Negative infinite SNR if there is no signal
 
     # Calculate SNR in dB
     snr = 10 * np.log10(signal_power / noise_power)
-    return np.abs(snr)
+    return snr
 
 
 if __name__ == "__main__":
