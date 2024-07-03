@@ -107,9 +107,9 @@ def process_files():
 
     # Create output folders if they don't exist
     output_folder = os.path.join(UPLOAD_FOLDER, "extracted_output")
-    output_image_plot = os.path.join(UPLOAD_FOLDER, "image_plot")
+    # output_image_plot = os.path.join(UPLOAD_FOLDER, "image_plot")
     os.makedirs(output_folder, exist_ok=True)
-    os.makedirs(output_image_plot, exist_ok=True)
+    # os.makedirs(output_image_plot, exist_ok=True)
     
     # Assuming only one file is uploaded, take the first one
     audio_file_path = PATH_DATA[0]
@@ -174,6 +174,16 @@ def process_files():
     entry_5.insert(0, f"{snr:.4f}")
     entry_time.delete(0, END)
     entry_time.insert(0, f"{(time.time() - start_time):.4f}")
+
+    # Assuming extract_text_from_audio is a function that extracts text from audio data
+    extracted_text = extract_text_from_audio(audio_data, 100)
+
+    # Define the path for the extracted text file
+    text_save_path = os.path.join(output_folder, "extracted_text.txt")
+
+    # Save the extracted text to the file
+    with open(text_save_path, 'w') as text_file:
+        text_file.write(extracted_text)
 
 def relative_to_assets(path: str) -> Path:
     return ASSETS_PATH / Path(path)
